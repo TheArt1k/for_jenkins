@@ -1,14 +1,46 @@
 pipeline {
-    agent {label "linux"}
-    options {
-        buildDiscarder logRoater(artifactDaysToKeepStr: '', artifactNumToKeepStr: '5', daysToKeepStr: '', numToKeepStr: '5')
-        disableConcurrentbuilds()
-        }
+    agent any
+
     stages {
-        stage ('Hello') {
+        stage('Checkout') {
             steps {
-                echo "hello"
+                echo 'Checking out code...'
+                checkout scm
             }
+        }
+
+        stage('Build') {
+            steps {
+                echo 'Building the project...'
+                sh 'javac -d target src/*.java'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                echo 'Running tests...'
+                sh 'java -cp target YourTestClass'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                script {
+                    echo 'Deploying to production...'
+                    // Добавьте здесь шаги для развертывания в продакшн
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline succeeded. Sending notification...'
+            // Добавьте здесь шаги для уведомления об успешной сборке
+        }
+        failure {
+            echo 'Pipeline failed. Sending notification...'
+            // Добавьте здесь шаги для уведомления об ошибке сборки
         }
     }
 }
