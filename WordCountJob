@@ -1,0 +1,54 @@
+pipeline {
+    agent any
+
+    parameters {
+        string(name: 'URL', defaultValue: 'https://example.com/page.html', description: 'Enter the URL of the HTML page')
+    }
+
+    stages {
+        stage('Download HTML') {
+            steps {
+                script {
+                    def url = params.URL
+                    echo "Downloading HTML from $url"
+
+                    def htmlContent = powershell(
+                        returnStdout: true,
+                        script: "Invoke-RestMethod -Uri $url"
+                    )
+
+                    echo "HTML content downloaded."
+                }
+            }
+        }
+
+        stage('Count Word Occurrences') {
+            steps {
+                script {
+                    def targetWord = 'Jenkins'
+                    def occurrences = 0
+
+                    // Count occurrences of the target word in the HTML content
+                    for (int i = 0; i < htmlContent.length() - targetWord.length(); i++) {
+                        if (htmlContent.substring(i, i + targetWord.length()).equalsIgnoreCase(targetWord)) {
+                            occurrences++
+                        }
+                    }
+
+                    echo "The word '$targetWord' appears $occurrences times in the HTML content."
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline succeeded. Sending notification...'
+            // Add steps for notifying about a successful build
+        }
+        failure {
+            echo 'Pipeline failed. Sending notification...'
+            // Add steps for notifying about a failed build
+        }
+    }
+}
