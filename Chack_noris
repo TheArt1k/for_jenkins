@@ -8,22 +8,20 @@ pipeline {
                     def apiUrl = 'https://api.chucknorris.io/jokes/random'
                     echo "API URL: $apiUrl"
 
-                    def response = bat(script: "powershell.exe Invoke-RestMethod -Uri $apiUrl -Method Get -UseBasicParsing")
+                    def response = powershell(
+                        returnStatus: true,
+                        script: "Invoke-RestMethod -Uri $apiUrl -Method Get -UseBasicParsing"
+                    )
+
                     echo "Exit code: $response"
 
                     if (response == 0) {
-                        def jokeInfo = null
-                        try {
-                            jokeInfo = bat(script: "powershell.exe Invoke-RestMethod -Uri $apiUrl -Method Get -UseBasicParsing | ConvertFrom-Json")
-                        } catch (Exception e) {
-                            error "Failed to parse Chuck Norris joke response. Error: ${e.message}"
-                        }
+                        def jokeInfo = powershell(
+                            returnStdout: true,
+                            script: "Invoke-RestMethod -Uri $apiUrl -Method Get -UseBasicParsing | ConvertFrom-Json"
+                        )
 
-                        if (jokeInfo && jokeInfo.value) {
-                            echo "Chuck Norris Joke: ${jokeInfo.value}"
-                        } else {
-                            error "Failed to get valid Chuck Norris joke response."
-                        }
+                        echo "Chuck Norris Joke: ${jokeInfo}"
                     } else {
                         error "Failed to get Chuck Norris joke. Exit code: $response"
                     }
