@@ -7,14 +7,14 @@ pipeline {
                 script {
                     def apiUrl = 'https://api.chucknorris.io/jokes/random'
 
-                    // Используем curl для выполнения HTTP-запроса
-                    def response = sh(script: "curl -s $apiUrl", returnStatus: true)
+                    // Используем powershell вместо nohup
+                    def response = bat(script: "powershell Invoke-RestMethod -Uri $apiUrl -Method Get -UseBasicParsing")
 
                     if (response == 0) {
-                        def jokeInfo = readJSON text: sh(script: "curl -s $apiUrl", returnStdout: true)
+                        def jokeInfo = bat(script: "powershell Invoke-RestMethod -Uri $apiUrl -Method Get -UseBasicParsing | ConvertFrom-Json")
                         echo "Chuck Norris Joke: ${jokeInfo.value}"
                     } else {
-                        error "Failed to get Chuck Norris joke. HTTP response code: $response"
+                        error "Failed to get Chuck Norris joke. Exit code: $response"
                     }
                 }
             }
