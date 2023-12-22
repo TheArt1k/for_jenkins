@@ -16,18 +16,20 @@ pipeline {
                     echo "Exit code: $response"
 
                     if (response == 0) {
-                        def jokeInfo = null
-                        def responseContent = null
-                        try {
-                            responseContent = powershell(
-                                returnStdout: true,
-                                script: "Invoke-RestMethod -Uri $apiUrl -Method Get -UseBasicParsing"
-                            )
-                            echo "Response Content: $responseContent"
+                        def responseContent = powershell(
+                            returnStdout: true,
+                            script: "Invoke-RestMethod -Uri $apiUrl -Method Get -UseBasicParsing | Out-String"
+                        )
+                        echo "Response Content: $responseContent"
 
+                        def escapedResponseContent = responseContent.replace("'", "''")
+                        echo "Escaped Response Content: $escapedResponseContent"
+
+                        def jokeInfo = null
+                        try {
                             jokeInfo = powershell(
                                 returnStdout: true,
-                                script: "$responseContent | ConvertFrom-Json"
+                                script: "\$responseContent = '$escapedResponseContent'; ConvertFrom-Json \$responseContent"
                             )
                         } catch (Exception e) {
                             error "Failed to parse Chuck Norris joke response. Error: ${e.message}"
@@ -49,11 +51,11 @@ pipeline {
     post {
         success {
             echo 'Pipeline succeeded. Sending notification...'
-            // Добавьте здесь шаги для уведомления об успешной сборке
+            // Add steps for notifying about a successful build
         }
         failure {
             echo 'Pipeline failed. Sending notification...'
-            // Добавьте здесь шаги для уведомления об ошибке сборки
+            // Add steps for notifying about a failed build
         }
     }
 }
