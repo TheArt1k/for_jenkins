@@ -16,12 +16,21 @@ pipeline {
                     echo "Exit code: $response"
 
                     if (response == 0) {
-                        def jokeInfo = powershell(
-                            returnStdout: true,
-                            script: "Invoke-RestMethod -Uri $apiUrl -Method Get -UseBasicParsing | ConvertFrom-Json"
-                        )
+                        def jokeInfo = null
+                        try {
+                            jokeInfo = powershell(
+                                returnStdout: true,
+                                script: "Invoke-RestMethod -Uri $apiUrl -Method Get -UseBasicParsing | ConvertFrom-Json"
+                            )
+                        } catch (Exception e) {
+                            error "Failed to parse Chuck Norris joke response. Error: ${e.message}"
+                        }
 
-                        echo "Chuck Norris Joke: ${jokeInfo}"
+                        if (jokeInfo) {
+                            echo "Chuck Norris Joke: ${jokeInfo}"
+                        } else {
+                            error "Failed to get valid Chuck Norris joke response."
+                        }
                     } else {
                         error "Failed to get Chuck Norris joke. Exit code: $response"
                     }
