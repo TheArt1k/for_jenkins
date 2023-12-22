@@ -17,10 +17,17 @@ pipeline {
 
                     if (response == 0) {
                         def jokeInfo = null
+                        def responseContent = null
                         try {
+                            responseContent = powershell(
+                                returnStdout: true,
+                                script: "Invoke-RestMethod -Uri $apiUrl -Method Get -UseBasicParsing"
+                            )
+                            echo "Response Content: $responseContent"
+
                             jokeInfo = powershell(
                                 returnStdout: true,
-                                script: "Invoke-RestMethod -Uri $apiUrl -Method Get -UseBasicParsing | ConvertFrom-Json"
+                                script: "$responseContent | ConvertFrom-Json"
                             )
                         } catch (Exception e) {
                             error "Failed to parse Chuck Norris joke response. Error: ${e.message}"
