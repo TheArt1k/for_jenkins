@@ -1,0 +1,39 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Get Chuck Norris Joke') {
+            steps {
+                script {
+                    def apiUrl = 'https://api.chucknorris.io/jokes/random'
+
+                    def response = httpRequest(
+                        acceptType: 'APPLICATION_JSON',
+                        contentType: 'APPLICATION_JSON',
+                        httpMode: 'GET',
+                        responseHandle: 'STRING',
+                        url: apiUrl
+                    )
+
+                    if (response.getResponseCode() == 200) {
+                        def jokeInfo = readJSON text: response.getContent()
+                        echo "Chuck Norris Joke: ${jokeInfo.value}"
+                    } else {
+                        error "Failed to get Chuck Norris joke. HTTP response code: ${response.getResponseCode()}"
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline succeeded. Sending notification...'
+            // Добавьте здесь шаги для уведомления об успешной сборке
+        }
+        failure {
+            echo 'Pipeline failed. Sending notification...'
+            // Добавьте здесь шаги для уведомления об ошибке сборки
+        }
+    }
+}
