@@ -1,3 +1,5 @@
+def htmlContent
+
 pipeline {
     agent any
 
@@ -12,7 +14,7 @@ pipeline {
                     def url = params.URL
                     echo "Downloading HTML from $url"
 
-                    def htmlContent = powershell(
+                    htmlContent = powershell(
                         returnStdout: true,
                         script: "Invoke-RestMethod -Uri $url"
                     )
