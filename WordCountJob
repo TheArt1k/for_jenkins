@@ -5,6 +5,7 @@ pipeline {
 
     parameters {
         string(name: 'URL', defaultValue: 'https://example.com/page.html', description: 'Enter the URL of the HTML page')
+        string(name: 'TargetWord', defaultValue: 'Jenkins', description: 'Enter the target word to count in the HTML content')
     }
 
     stages {
@@ -27,7 +28,7 @@ pipeline {
         stage('Count Word Occurrences') {
             steps {
                 script {
-                    def targetWord = 'Jenkins'
+                    def targetWord = params.TargetWord
                     def occurrences = 0
 
                     // Count occurrences of the target word in the HTML content
